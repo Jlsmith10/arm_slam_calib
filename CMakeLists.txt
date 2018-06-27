@@ -112,15 +112,21 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(Boost REQUIRED COMPONENTS thread system)
 find_package(Eigen REQUIRED)
 find_package(GTSAM REQUIRED)
+
+message(STATUS "GTSAM library status:")
+message(STATUS "    version: ${GTSAM_VERSION}")
+message(STATUS "    libraries: ${GTSAM_VERSION}")
+message(STATUS "    include path: ${GTSAM_INCLUDE_DIRS}")
+
 find_package(OMPL REQUIRED)
 find_package(TBB REQUIRED)
 find_package(OpenCV REQUIRED)
-find_package(brisk REQUIRED)
+#find_package(brisk REQUIRED) # Will eventually port this code to use OpenCV's brisk
 find_package(OpenGV REQUIRED)
 find_package(PCL 1.8 REQUIRED)
-find_package(aikido REQUIRED)
-find_package(aikido_rviz REQUIRED)
-find_package(assimp REQUIRED)
+find_package(aikido REQUIRED COMPONENTS io)
+#find_package(aikido_rviz REQUIRED)
+#find_package(assimp REQUIRED)
 
 ###########
 ## Build ##
@@ -140,11 +146,11 @@ include_directories(
   ${TBB_INCLUDE_DIRS}
   ${OPENCV_INCLUDE_DIRS}
   ${BRISK_INCLUDE_DIRS}
-  ${OPENGV_INCLUDE_DIRS}
+  ${OpenGV_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
   ${aikido_INCLUDE_DIRS}
-  ${aikido_rviz_INCLUDE_DIRS}
-  ${assimp_INCLUDE_DIRS}
+ # ${aikido_rviz_INCLUDE_DIRS}
+ # ${assimp_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
@@ -168,11 +174,11 @@ ${OMPL_LIBRARIES}
 ${TBB_LIBRARIES}
 ${OPENCV_LIBRARIES}
 ${BRISK_LIBRARIES}
-${OPENGV_LIBS}
+${OpenGV_LIBS}
 ${PCL_LIBRARIES}
 ${aikido_LIBRARIES}
-${assimp_LIBRARIES}
-${aikido_rviz_LIBRARIES}
+#${assimp_LIBRARIES}
+#${aikido_rviz_LIBRARIES}
 )
 
 target_link_libraries(sim

@@ -515,8 +515,13 @@ namespace gtsam
          cv::Mat descriptors;
          cv::Mat mask;
          ROS_INFO("Detecting...");
+
+         // Here we need to use opencv's Brisk detector instead... https://docs.opencv.org/3.2.0/de/dbf/classcv_1_1BRISK.html
+
          briskDetector->detect(cvImage->image, keypoints);
          briskExtractor->compute(cvImage->image, keypoints, descriptors);
+
+
          if (!keypoints.size())
          {
              Timer::Tock("GetNewLandmarks");

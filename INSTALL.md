@@ -55,8 +55,24 @@ sudo apt-get update
 sudo apt-get install libdart5-dev
 ```
 * [BRISK](https://github.com/clemenscorny/brisk)
+```
+git clone https://github.com/clemenscorny/brisk
+git checkout opencv3
+
+mkdir build && cd build
+cmake ..
+make
+```
+### NOTE: I had trouble installing this due to no briskConfig.cmake, but you can manually set the BRISK_ variables:
+Add the following to ~/.bashrc:
+```
+export BRISK_LIBRARIES=/home/james/brisk/build/lib
+export BRISK_INCLUDE_DIRS=/home/james/brisk/include
+```
+
 
 * [OpenCV](https://github.com/opencv/opencv)
+### Use the OpenCV built-in to ROS Indigo, no need to install
 
 * [OpenGV](https://github.com/laurentkneip/opengv)
 #### NOTE: Not in catkin workspace, this is a generic CMake package.
@@ -69,26 +85,34 @@ git clone https://github.com/laurentkneip/opengv
 ```
 git clone https://bitbucket.org/gtborg/gtsam
 cd gtsam
-mkdir build
-cd build
+mkdir build && cd build
 cmake ..
 make check
 make install
 ```
+
+Then add the following to ~/.bashrc:
+```
+export GTSAM_DIR=/home/james/gtsam/build/  // <-- insert the directory that you installed gtsam (replace /home/james)
+```
 * [Eigen3](http://eigen.tuxfamily.org/index.php?title=Main_Page)
+### Use the Eigen3 built-in to ROS Indigo, no need to install
 
 * [PCL](https://github.com/PointCloudLibrary/pcl)
 ### Install PCL 1.8
 ```
 git clone https://github.com/PointCloudLibrary/pcl
 cd pcl
-mkdir build
-cd build
+git fetch --all --tags --prune
+git checkout tags/pcl-1.8.0
+mkdir build && cd build
 cmake ..
 make install
 ```
-
-
+Point the PCL_DIR directory to the folder that contains the Config.cmake file
+```
+export PCL_DIR=/home/james/pcl/build/  // <-- insert the directory that you installed pcl (replace /home/james)
+```
 * [Assimp](https://github.com/assimp/assimp)
 
 * [TBB](https://github.com/wjakob/tbb)
