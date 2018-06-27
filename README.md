@@ -14,7 +14,7 @@ It is designed for serial-link robot manipulators with a single monocular camera
 * ROS indigo or higher (probably on Linux, preferably Ubuntu)
 * catkin build system
 
-##ROS Packages##
+## ROS Packages
 * geometry_msgs
 * cv_bridge
 * sensor_msgs
@@ -26,7 +26,7 @@ It is designed for serial-link robot manipulators with a single monocular camera
 * [apriltags](https://github.com/personalrobotics/apriltags)
 * [joint_state_recorder](https://github.com/personalrobotics/joint_state_recorder)
 
-##Non-ROS Dependencies##
+## Non-ROS Dependencies
 * [AIKIDO](https://github.com/personalrobotics/aikido)
 * [DART](https://github.com/dartsim/dart)
 * [BRISK](https://github.com/clemenscorny/brisk)
@@ -39,7 +39,7 @@ It is designed for serial-link robot manipulators with a single monocular camera
 * [TBB](https://github.com/wjakob/tbb)
 * C++11
 
-# Usage #
+# Usage
 The tracking/calibration algorithm can be configured to run with or without fiducials. 
 
 To use fiducials, you will have to first get an [April Tags](https://github.com/personalrobotics/apriltags) node up and running, observing april tags in the environment. The SLAM system can use the april tags messages directly. It will also subscribe to the color images (or depth images, where available) for debugging purposes. 

@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   cv_bridge
   image_transport
   joint_state_recorder
-  apriltags
+  #apriltags # Can't get to work with swatbotics or personalrobotics repos. need to try to integrate apriltags2_ros next...
   pcl_ros
 )
 
@@ -103,11 +103,11 @@ endif()
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES arm_slam_calib
-  CATKIN_DEPENDS geometry_msgs std_msgs sensor_msgs visualization_msgs joint_state_recorder cv_bridge apriltags
+  CATKIN_DEPENDS geometry_msgs std_msgs sensor_msgs visualization_msgs joint_state_recorder cv_bridge #apriltags
   DEPENDS Eigen boost dart aikido aikido_rviz assimp
 )
-
-find_package(DART REQUIRED COMPONENTS core)
+find_package(DART REQUIRED) # Changed from DART REQUIRED core... I think core is deprecated, but just REQUIRED
+                            # gets all of the same packages...                            
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(Boost REQUIRED COMPONENTS thread system)
 find_package(Eigen REQUIRED)

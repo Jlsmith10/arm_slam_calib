@@ -170,6 +170,11 @@ void TriangulateUnitTest()
 
 namespace gtsam
 {
+    /* JLS 6/26/2018 - CreateBox() was never used so I commented it out because 
+    p.second->createShapeNodeWith<dart::dynamics::VisualAddon>(shape);
+    throws a compile error...
+    */
+    /*
     dart::dynamics::SkeletonPtr CreateBox(const std::string& name, const Eigen::Vector3d& dimensions, const Eigen::Vector3d& pos, const double& mass)
     {
         dart::dynamics::SkeletonPtr skeleton = dart::dynamics::Skeleton::create(name);
@@ -184,10 +189,9 @@ namespace gtsam
         jointProp.mT_ParentBodyToJoint.translation() = pos;
         auto p = skeleton->createJointAndBodyNodePair<dart::dynamics::FreeJoint>(nullptr, jointProp, bodyProps);
         p.second->createShapeNodeWith<dart::dynamics::VisualAddon>(shape);
-
         return skeleton;
     }
-
+    */
 
     ArmSlamCalib::ArmSlamCalib(const ros::NodeHandle& nh_,  const std::shared_ptr<std::mutex>& robotMutex_, const ArmSlamCalib::Params& noiseParams_) :
             nh(nh_), robotMutex(robotMutex_), cameraBody(0x0), params(noiseParams_), maxID(0), perlin(nh.param("seed", 0)), simExtrinsic(gtsam::Pose3::identity())
