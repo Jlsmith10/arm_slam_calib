@@ -8,8 +8,8 @@
 #ifndef ROBOTCONFIG_H_
 #define ROBOTCONFIG_H_
 
-#include <dart/dart.h>
-#include <dart/dynamics/Group.h>
+#include <dart/dart.hpp> // Changed from dart.h
+#include <dart/dynamics/Group.hpp> // Changed from Group.h
 #include <gtsam/nonlinear/Values.h>
 
 namespace gtsam

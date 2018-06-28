@@ -8,8 +8,8 @@
 #ifndef ROBOTPROJECTIONFACTOR_H_
 #define ROBOTPROJECTIONFACTOR_H_
 
-#include <dart/dart.h>
-#include <dart/dynamics/Group.h>
+#include <dart/dart.hpp> // Changed from dart.h
+#include <dart/dynamics/Group.hpp> // Changed from Group.h
 #include <gtsam/nonlinear/NonlinearFactorGraph.h>
 #include <gtsam/nonlinear/Values.h>
 #include <gtsam/nonlinear/NonlinearFactor.h>

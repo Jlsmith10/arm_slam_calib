@@ -18,14 +18,16 @@
 #include <gtsam/geometry/Point3.h>
 #include <gtsam/geometry/Cal3_S2.h>
 #include <arm_slam_calib/Landmark.h>
-#include <apriltags/AprilTagDetections.h>
+#include <apriltags2_ros/AprilTagDetectionArray.h>
 #include <opencv2/features2d/features2d.hpp>
 #include <gtsam/geometry/Pose3.h>
-#include <brisk/brisk.h>
+//#include <brisk/brisk.h>
+/* DISABLE_POINT_CLOUDS
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
+*/
 #include <tf/transform_listener.h>
 #include <message_filters/sync_policies/approximate_time.h>
 
@@ -97,17 +99,18 @@ namespace gtsam
             void OnDepthInfo(const sensor_msgs::CameraInfoConstPtr& info);
             void OnCamera(const sensor_msgs::ImageConstPtr& image, const sensor_msgs::CameraInfoConstPtr& info);
             void OnDepth(const sensor_msgs::ImageConstPtr& image, const sensor_msgs::CameraInfoConstPtr& info);
-            void OnApriltags(const apriltags::AprilTagDetectionsConstPtr& detections);
+            void OnApriltags(const apriltags2_ros::AprilTagDetectionArrayConstPtr& detections);
 
             bool GetCameraCalibration(Cal3_S2& K);
             bool GetDepthCalibration(Cal3_S2& K);
             bool GetNewLandmarks(const gtsam::Pose3& cameraPose, ros::Time& timeOut,
                     const std::vector<gtsam::Landmark>& visibleLandmarks,
                     std::vector<gtsam::Landmark>& landmarksOut);
-
+            /*
             bool GetNewLandmarksCheckerboard(const gtsam::Pose3& cameraPose, ros::Time& timeOut,
                     const std::vector<gtsam::Landmark>& visibleLandmarks,
                     std::vector<gtsam::Landmark>& landmarksOut);
+            */
             bool GetNewLandmarksApriltags(const gtsam::Pose3& cameraPose, ros::Time& timeOut,
                     const std::vector<gtsam::Landmark>& visibleLandmarks,
                     std::vector<gtsam::Landmark>& landmarksOut);
@@ -124,8 +127,9 @@ namespace gtsam
             cv_bridge::CvImagePtr GetLandmarkDisplay() { return landmarkDisplay; }
 
             bool MaskKeypoint(const cv::KeyPoint& kpt);
-
+            /* DISABLE_POINT_CLOUDS
             bool GeneratePointCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
+            */
 
             inline Mode GetMode() { return mode; }
 
@@ -134,7 +138,7 @@ namespace gtsam
             sensor_msgs::CameraInfoConstPtr lastCameraInfo;
             sensor_msgs::ImageConstPtr lastDepthImage;
             sensor_msgs::CameraInfoConstPtr lastDepthInfo;
-            apriltags::AprilTagDetectionsConstPtr lastAprilTags;
+            apriltags2_ros::AprilTagDetectionArrayConstPtr lastAprilTags;
             tf::StampedTransform lastDepthTransform;
             bool hasNewData;
             ros::NodeHandle nodeHandle;
@@ -159,10 +163,12 @@ namespace gtsam
             Mode mode;
             bool hasNewAprilTags;
             cv::Mat lastCVImage;
+            /* DISABLE BRISK
             std::shared_ptr<cv::ORB> orb;
             std::shared_ptr<brisk::HarrisScaleSpaceFeatureDetector> briskDetector;
             std::shared_ptr<brisk::BriskDescriptorExtractor> briskExtractor;
             std::shared_ptr<cv::BFMatcher> featureMatcher;
+            */
             size_t maxID;
             cv_bridge::CvImagePtr landmarkDisplay;
             FeatureMatchParams params;

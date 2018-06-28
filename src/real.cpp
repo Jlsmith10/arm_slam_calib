@@ -12,12 +12,12 @@
 #include <gtsam/slam/GeneralSFMFactor.h> // does calibration !
 #include <gtsam/slam/ProjectionFactor.h>
 
-#include <dart/dart.h>
+#include <dart/dart.hpp>
 #include <stdio.h>
 #include <ros/ros.h>
 #include <fstream>
 #include <aikido/rviz/InteractiveMarkerViewer.hpp>
-#include <aikido/util/CatkinResourceRetriever.hpp>
+#include <aikido/io/CatkinResourceRetriever.hpp>
 
 #include <gtsam/nonlinear/NonlinearFactorGraph.h>
 #include <arm_slam_calib/EncoderFactor.h>
@@ -44,6 +44,8 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "arm_calib_sim");
     ros::NodeHandle nh("~");
 
+    ROS_INFO("Sim node initialized!");
+
     tf::TransformBroadcaster transformBroadcaster;
 
 
@@ -64,10 +66,12 @@ int main(int argc, char** argv)
     std::string cameraName = "mico_end_effector";
     nh.param("camera_mount_link", cameraName, cameraName);
 
-    std::string urdf = "package://ada_description/robots/mico.urdf";
+    //std::string urdf = "package://ada_description/robots/fetch.urdf";
+    std::string urdf = "/home/james/catkin_ws/src/semi_farm_slam/robots/fetch.urdf";
     nh.param("urdf", urdf, urdf);
-
+    ROS_INFO("Loading urdf...");
     calib.InitRobot(urdf, joints, cameraName);
+    ROS_INFO("Completed loading urdf...");
 
     std::string rgbTopic = "/camera/rgb/image_rect_color";
     std::string rgbInfo = "/camera/rgb/camera_info";
@@ -94,7 +98,9 @@ int main(int argc, char** argv)
     for (size_t i = 0; i < 10; i++)
     {
         hz.sleep();
+        /* DISABLE_VIEWER
         calib.UpdateViewer();
+        */
         ros::spinOnce();
     }
 
@@ -180,7 +186,9 @@ int main(int argc, char** argv)
         }
 
         iter++;
+        /* DISABLE_POINT_CLOUDS
         calib.PublishLastPointCloud();
+        */
 
         tf::StampedTransform tf;
         tf.child_frame_id_ = "/camera_rgb_optical_frame";
@@ -201,7 +209,9 @@ int main(int argc, char** argv)
         //calib.DrawState(iter, 0, calib.initialEstimate, 0.0, 0.8, 0.8, 1.0);
         calib.DrawState(iter, 1, calib.currentEstimate, 0.8, 0.0, 0.0, 1.0, drawLandmarks, drawTraj, drawObs, drawCamera, drawPointCloud, drawMarginal);
         calib.GetArm()->setPositions(currentConfig);
+        /* DISABLE_VIEWER
         calib.UpdateViewer();
+        */
 
         hz.sleep();
         ros::spinOnce();

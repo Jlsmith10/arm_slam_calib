@@ -51,9 +51,11 @@ endif()
 
 if(GTSAM_DIR)
   # Find include dirs
-  find_path(GTSAM_INCLUDE_DIR gtsam/inference/FactorGraph.h
+  find_path(GTSAM_INCLUDE_DIR gtsam/geometry/Point2.h
     PATHS "${GTSAM_DIR}/include" "${GTSAM_DIR}" NO_DEFAULT_PATH
     DOC "GTSAM include directories")
+
+  list(APPEND GTSAM_INCLUDE_DIR ${GTSAM_INCLUDE_DIR}/build)
 
   # Find libraries
   find_library(GTSAM_LIBS NAMES gtsam
@@ -61,18 +63,22 @@ if(GTSAM_DIR)
     PATH_SUFFIXES ${gtsam_build_names}
     DOC "GTSAM libraries")
 else()
+  message(STATUS "NO GTSAM_DIR make sure to export GTSAM_DIR in your bashrc to the lcoation of your gtsam installation directory!")
   # Find include dirs
-  set(extra_include_paths ${CMAKE_INSTALL_PREFIX}/include "$ENV{HOME}/include" "${PROJECT_SOURCE_DIR}/../gtsam" /usr/local/include /usr/include)
-  find_path(GTSAM_INCLUDE_DIR gtsam/inference/FactorGraph.h
-    PATHS ${extra_include_paths}
+  set(extra_include_paths ${CMAKE_INSTALL_PREFIX}/include "$ENV{HOME}/include" "${PROJECT_SOURCE_DIR}/../gtsam" "$ENV(HOME)" /usr/local/include /usr/include)
+  find_path(GTSAM_INCLUDE_DIR gtsam/gtsam/geometry/Point2.h
+    PATHS "${GTSAM_DIR}/include" "${GTSAM_DIR}" NO_DEFAULT_PATH
     DOC "GTSAM include directories")
+  
+  list(APPEND GTSAM_INCLUDE_DIR ${GTSAM_INCLUDE_DIR}/build)
+
   if(NOT GTSAM_INCLUDE_DIR)
     message(STATUS "Searched for gtsam headers in default paths plus ${extra_include_paths}")
   endif()
 
   # Find libraries
   find_library(GTSAM_LIBS NAMES gtsam
-    HINTS ${CMAKE_INSTALL_PREFIX}/lib "$ENV{HOME}/lib" "${PROJECT_SOURCE_DIR}/../gtsam" /usr/local/lib /usr/lib
+    HINTS ${CMAKE_INSTALL_PREFIX}/lib "$ENV{HOME}/lib" "${PROJECT_SOURCE_DIR}/../gtsam" /usr/local/lib /usr/lib "$ENV(HOME)/gtsam/build"
     PATH_SUFFIXES ${gtsam_build_names}
     DOC "GTSAM libraries")
 endif()

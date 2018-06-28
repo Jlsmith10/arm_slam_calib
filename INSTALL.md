@@ -84,6 +84,8 @@ git clone https://github.com/laurentkneip/opengv
 #### NOTE: Not in catkin workspace, this is a generic CMake package.
 ```
 git clone https://bitbucket.org/gtborg/gtsam
+
+git checkout origin release/3.2.1
 cd gtsam
 mkdir build && cd build
 cmake ..

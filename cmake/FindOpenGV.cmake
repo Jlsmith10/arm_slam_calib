@@ -55,24 +55,31 @@ if(OPENGV_DIR)
     PATHS "${OPENGV_DIR}/include" "${OPENGV_DIR}" NO_DEFAULT_PATH
     DOC "OPENGV include directories")
 
+  message(STATUS "OPENGV_INCLUDE_DIR: ${OPENGV_INCLUDE_DIR}")
+
   # Find libraries
   find_library(OPENGV_LIBS NAMES opengv
-    HINTS "${OPENGV_DIR}/lib" "${OPENGV_DIR}" NO_DEFAULT_PATH
+    HINTS "${OPENGV_DIR}/lib" "${OPENGV_DIR}" $ENV{HOME}/opengv/build/lib NO_DEFAULT_PATH
     PATH_SUFFIXES ${opengv_build_names}
     DOC "OPENGV libraries")
 else()
+  message(STATUS "Cant' find OPENGV_DIR!")
   # Find include dirs
-  set(extra_include_paths ${CMAKE_INSTALL_PREFIX}/include "$ENV{HOME}/include" "${PROJECT_SOURCE_DIR}/../opengv" /usr/local/include /usr/include)
-  find_path(OPENGV_INCLUDE_DIR opengv/types.hpp
+  set(extra_include_paths ${CMAKE_INSTALL_PREFIX}/include "$ENV{HOME}/include" "${PROJECT_SOURCE_DIR}/../opengv" "$ENV{HOME}" /usr/local/include /usr/include)
+  find_path(OPENGV_INCLUDE_DIR opengv/include/opengv/types.hpp
     PATHS ${extra_include_paths}
     DOC "OPENGV include directories")
+  
+  message(STATUS "OPENGV_INCLUDE_DIR: ${OPENGV_INCLUDE_DIR}")
+
+  
   if(NOT OPENGV_INCLUDE_DIR)
     message(STATUS "Searched for opengv headers in default paths plus ${extra_include_paths}")
   endif()
 
   # Find libraries
   find_library(OPENGV_LIBS NAMES opengv
-    HINTS ${CMAKE_INSTALL_PREFIX}/lib "$ENV{HOME}/lib" "${PROJECT_SOURCE_DIR}/../opengv" /usr/local/lib /usr/lib
+    HINTS ${CMAKE_INSTALL_PREFIX}/lib "$ENV{HOME}/lib" "${PROJECT_SOURCE_DIR}/../opengv"  "$ENV{HOME}/opengv/build/lib" /usr/local/lib /usr/lib
     PATH_SUFFIXES ${opengv_build_names}
     DOC "OPENGV libraries")
 endif()

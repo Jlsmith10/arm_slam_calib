@@ -7,7 +7,8 @@
 
 #include <arm_slam_calib/FrontEnd.h>
 #include <sensor_msgs/image_encodings.h>
-#include <opencv2/core/affine.hpp>
+//#include <opencv2/core/affine.hpp> 
+#include <gtsam/geometry/PinholeCamera.h>
 #include <gtsam/geometry/PinholeCamera.h>
 #include <arm_slam_calib/Timer.h>
 using namespace timer;
@@ -33,10 +34,12 @@ namespace gtsam
 
     void FrontEnd::CreateFeatureMatchers()
     {
+        /* DISABLE_BRISK
         orb = std::make_shared<cv::ORB>(32, 1.0f, 1, 31, 0);
         briskDetector = std::make_shared<brisk::HarrisScaleSpaceFeatureDetector>(30, 0, 200, 400);;
         briskExtractor = std::make_shared<brisk::BriskDescriptorExtractor>(true, true, brisk::BriskDescriptorExtractor::Version::briskV2);
         featureMatcher = std::make_shared<cv::BFMatcher>(cv::NORM_HAMMING);
+        */
     }
 
     void FrontEnd::SubscribeAprilTags(const std::string& topic)
@@ -44,7 +47,7 @@ namespace gtsam
         aprilTagsSubscriber = nodeHandle.subscribe(topic, 10, &FrontEnd::OnApriltags, this);
     }
 
-    void FrontEnd::OnApriltags(const apriltags::AprilTagDetectionsConstPtr& detections)
+    void FrontEnd::OnApriltags(const apriltags2_ros::AprilTagDetectionArrayConstPtr& detections)
     {
         if (detections->detections.size() > 0)
         {
@@ -131,7 +134,7 @@ namespace gtsam
 
 
     }
-
+    /* DISABLE_POINT_CLOUDS
     bool FrontEnd::GeneratePointCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
     {
 
@@ -251,6 +254,7 @@ namespace gtsam
          Timer::Tock("GeneratePointCloud");
          return true;
     }
+    */
 
     void FrontEnd::SetCheckerboard(double squareSize_,int numCellsX_, int numCellsY_)
     {
@@ -297,6 +301,7 @@ namespace gtsam
         return true;
     }
 
+    /*
     bool FrontEnd::GetNewLandmarksCheckerboard(const gtsam::Pose3& cameraPose, ros::Time& timeOut, const std::vector<gtsam::Landmark>& visibleLandmarks, std::vector<gtsam::Landmark>& landmarksOut)
     {
         cv_bridge::CvImagePtr cvImage;
@@ -380,6 +385,7 @@ namespace gtsam
          hasNewData = false;
          return true;
     }
+    */
 
     bool  FrontEnd::GetNewLandmarksApriltags(const gtsam::Pose3& pose, ros::Time& timeOut,  const std::vector<gtsam::Landmark>& visibleLandmarks, std::vector<gtsam::Landmark>& landmarksOut)
     {
@@ -417,24 +423,24 @@ namespace gtsam
         for (size_t i = 0; i < detections.size(); i++)
         {
             const auto& detection = detections.at(i);
-            if (detection.id > 40)
+            if (detection.id[0] > 40)
             {
                 continue;
             }
 
-            if (detection.pose.position.z < 0)
+            if (detection.pose.pose.pose.position.z < 0)
             {
                 continue;
             }
 
             gtsam::Landmark landmark;
-            landmark.id = detection.id;
-            landmark.position = gtsam::Point3(detection.pose.position.x, detection.pose.position.y, detection.pose.position.z);
+            landmark.id = detection.id[0];
+            landmark.position = gtsam::Point3(detection.pose.pose.pose.position.x, detection.pose.pose.pose.position.y, detection.pose.pose.pose.position.z);
             landmark.observations.push_back(gtsam::Point2(detection.corners2d.at(0).x, detection.corners2d.at(0).y));
             landmark.isTriangulated = true;
             cv::circle(landmarkDisplay->image, cv::Point2f(detection.corners2d.at(0).x, detection.corners2d.at(0).y), 5, cv::Scalar(0, 255, 0), 2);
             std::stringstream ss;
-            ss << detection.id;
+            ss << detection.id[0];
             cv::putText(landmarkDisplay->image, ss.str(),
                     cv::Point2f(detection.corners2d.at(0).x + 5, detection.corners2d.at(0).y + 5),
                     cv::FONT_HERSHEY_SCRIPT_SIMPLEX, 0.5, cv::Scalar(0, 255, 0));
@@ -454,7 +460,7 @@ namespace gtsam
         return kpt.pt.x > params.maxX || kpt.pt.y > params.maxY ||
                kpt.pt.x < params.minX || kpt.pt.y < params.minY;
     }
-
+    /*
     bool FrontEnd::GetNewLandmarksFeatures(const gtsam::Pose3& cameraPose, ros::Time& timeOut,  const std::vector<gtsam::Landmark>& visibleLandmarks, std::vector<gtsam::Landmark>& landmarksOut)
     {
 
@@ -721,24 +727,29 @@ namespace gtsam
          Timer::Tock("GetNewLandmarks");
          return true;
     }
-
+    */
 
 
 
     bool FrontEnd::GetNewLandmarks(const gtsam::Pose3& cameraPose, ros::Time& timeOut,  const std::vector<gtsam::Landmark>& visibleLandmarks, std::vector<gtsam::Landmark>& landmarksOut)
     {
+        /* DISABLE_CHECKERBOARD
         if (mode == Mode_Checkerboard)
         {
             return HasNewData() && GetNewLandmarksCheckerboard(cameraPose, timeOut, visibleLandmarks, landmarksOut);
         }
-        else if (mode == Mode_Apriltags)
+        */
+        if (mode == Mode_Apriltags)
         {
             return HasNewApriltags() && GetNewLandmarksApriltags(cameraPose, timeOut, visibleLandmarks, landmarksOut);
         }
         else
         {
+        /* DISABLE_BRISK
             return HasNewData() && GetNewLandmarksFeatures(cameraPose, timeOut, visibleLandmarks, landmarksOut);
+        */
         }
+        
     }
 
     void FrontEnd::FeatureMatchParams::InitializeNodeHandle(const ros::NodeHandle& nh)

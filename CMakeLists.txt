@@ -14,7 +14,8 @@ find_package(catkin REQUIRED COMPONENTS
   image_transport
   joint_state_recorder
   #apriltags # Can't get to work with swatbotics or personalrobotics repos. need to try to integrate apriltags2_ros next...
-  pcl_ros
+  apriltags2_ros 
+  # DISABLE_POINT_CLOUDS pcl_ros
 )
 
 include(CheckCXXCompilerFlag)
@@ -103,27 +104,49 @@ endif()
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES arm_slam_calib
-  CATKIN_DEPENDS geometry_msgs std_msgs sensor_msgs visualization_msgs joint_state_recorder cv_bridge #apriltags
+  CATKIN_DEPENDS geometry_msgs std_msgs sensor_msgs visualization_msgs joint_state_recorder cv_bridge apriltags2_ros
   DEPENDS Eigen boost dart aikido aikido_rviz assimp
 )
 find_package(DART REQUIRED) # Changed from DART REQUIRED core... I think core is deprecated, but just REQUIRED
-                            # gets all of the same packages...                            
+                            # gets all of the same packages...    
+message(STATUS "DART library status:")
+message(STATUS "    version: ${DART_VERSION}")
+message(STATUS "    libraries: ${DART_LIBRARIES}")
+message(STATUS "    include path: ${DART_INCLUDE_DIRS}") 
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(Boost REQUIRED COMPONENTS thread system)
 find_package(Eigen REQUIRED)
+
+set(GTSAM_DIR "/home/james/gtsam")
+message(STATUS "Set GTSAM_DIR to ${GTSAM_DIR}") # TODO: Find a better way to do this; it is hard coded now
+
 find_package(GTSAM REQUIRED)
 
 message(STATUS "GTSAM library status:")
 message(STATUS "    version: ${GTSAM_VERSION}")
-message(STATUS "    libraries: ${GTSAM_VERSION}")
-message(STATUS "    include path: ${GTSAM_INCLUDE_DIRS}")
+message(STATUS "    libraries: ${GTSAM_LIBS}")
+message(STATUS "    include path: ${GTSAM_INCLUDE_DIR}")
 
 find_package(OMPL REQUIRED)
 find_package(TBB REQUIRED)
 find_package(OpenCV REQUIRED)
+
+message(STATUS "OpenCV library status:")
+message(STATUS "    version: ${OPENCV_VERSION}")
+message(STATUS "    libraries: ${OPENCV_LIBS}")
+message(STATUS "    include path: ${OPENCV_INCLUDE_DIR}")
+
 #find_package(brisk REQUIRED) # Will eventually port this code to use OpenCV's brisk
+set(OPENGV_DIR "/home/james/opengv")
+
 find_package(OpenGV REQUIRED)
-find_package(PCL 1.8 REQUIRED)
+message(STATUS "OPENGV library status:")
+message(STATUS "    version: ${OPENGV_VERSION}")
+message(STATUS "    libraries: ${OPENGV_LIBS}")
+message(STATUS "    include path: ${OPENGV_INCLUDE_DIR}")
+
+# DISABLE_POINT_CLOUDS find_package(PCL 1.8 REQUIRED)
 find_package(aikido REQUIRED COMPONENTS io)
 #find_package(aikido_rviz REQUIRED)
 #find_package(assimp REQUIRED)
@@ -141,13 +164,13 @@ include_directories(
   ${Boost_INCLUDE_DIRS}
   ${EIGEN_INCLUDE_DIRS}
   ${DART_INCLUDE_DIRS}
-  ${GTSAM_INCLUDE_DIRS}
+  ${GTSAM_INCLUDE_DIR}
   ${OMPL_INCLUDE_DIRS}
   ${TBB_INCLUDE_DIRS}
   ${OPENCV_INCLUDE_DIRS}
   ${BRISK_INCLUDE_DIRS}
-  ${OpenGV_INCLUDE_DIRS}
-  ${PCL_INCLUDE_DIRS}
+  ${OPENGV_INCLUDE_DIR}
+  # DISABLE_POINT_CLOUDS ${PCL_INCLUDE_DIRS}
   ${aikido_INCLUDE_DIRS}
  # ${aikido_rviz_INCLUDE_DIRS}
  # ${assimp_INCLUDE_DIRS}
@@ -155,14 +178,14 @@ include_directories(
 
 ## Declare a cpp library
  add_library(arm_slam_calib
-	src/ArmSlamCalib.cpp src/FrontEnd.cpp src/RelativePoseAdapter.cpp src/Timer.cpp src/PerlinNoise.cpp src/Utils.cpp  src/RobotGenerator.cpp
+	src/ArmSlamCalib.cpp src/FrontEnd.cpp src/RelativePoseAdapter.cpp src/Timer.cpp src/PerlinNoise.cpp src/Utils.cpp  #src/RobotGenerator.cpp
  )
 
 ## Declare a cpp executable
-add_executable(sim src/sim.cpp)
-add_executable(sim_genrobot src/sim_genrobot.cpp)
+#add_executable(sim src/sim.cpp)
+#add_executable(sim_genrobot src/sim_genrobot.cpp)
 add_executable(real src/real.cpp)
-add_executable(sim_image src/sim_image.cpp)
+#add_executable(sim_image src/sim_image.cpp)
 
 target_link_libraries(arm_slam_calib
 ${catkin_LIBRARIES}
@@ -174,17 +197,17 @@ ${OMPL_LIBRARIES}
 ${TBB_LIBRARIES}
 ${OPENCV_LIBRARIES}
 ${BRISK_LIBRARIES}
-${OpenGV_LIBS}
-${PCL_LIBRARIES}
+${OPENGV_LIBS}
+# DISABLE_POINT_CLOUDS ${PCL_LIBRARIES}
 ${aikido_LIBRARIES}
 #${assimp_LIBRARIES}
 #${aikido_rviz_LIBRARIES}
 )
 
-target_link_libraries(sim
-arm_slam_calib
-${catkin_LIBRARIES}
-)
+#target_link_libraries(sim
+#arm_slam_calib
+#${catkin_LIBRARIES}
+#)
 
 target_link_libraries(real
 arm_slam_calib
@@ -192,15 +215,15 @@ ${catkin_LIBRARIES}
 )
 
 
-target_link_libraries(sim_image
-arm_slam_calib
-${catkin_LIBRARIES}
-)
+#target_link_libraries(sim_image
+#arm_slam_calib
+#${catkin_LIBRARIES}
+#)
 
-target_link_libraries(sim_genrobot
-arm_slam_calib
-${catkin_LIBRARIES}
-)
+#target_link_libraries(sim_genrobot
+#arm_slam_calib
+#${catkin_LIBRARIES}
+#)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes

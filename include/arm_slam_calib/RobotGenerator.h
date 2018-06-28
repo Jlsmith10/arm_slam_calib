@@ -8,7 +8,7 @@
 #ifndef INCLUDE_ARM_SLAM_CALIB_ROBOTGENERATOR_H_
 #define INCLUDE_ARM_SLAM_CALIB_ROBOTGENERATOR_H_
 
-#include <dart/dart.h>
+#include <dart/dart.hpp> // Changed from dart.h 
 
 namespace dart
 {

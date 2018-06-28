@@ -18,12 +18,14 @@
 #include <gtsam/nonlinear/Marginals.h>
 #include <arm_slam_calib/DriftFactor.h>
 
-#include <dart/dart.h>
+#include <dart/dart.hpp> // Changed from dart.h
+#include <dart/utils/urdf/DartLoader.hpp>
+
 #include <stdio.h>
 #include <ros/ros.h>
 #include <fstream>
 #include <aikido/rviz/InteractiveMarkerViewer.hpp>
-#include <aikido/util/CatkinResourceRetriever.hpp>
+#include <aikido/io/CatkinResourceRetriever.hpp> // Changed from aikido/util/CatkinResourceRetriever.hpp
 
 // Camera observations of landmarks (i.e. pixel coordinates) will be stored as Point2 (x, y).
 #include <gtsam/geometry/Point2.h>
@@ -87,8 +89,10 @@ namespace gtsam
                         extrinsicInitialGuess(gtsam::Pose3::identity()),
                         runRansac(true),
                         saveImages(false),
+                        /* DISABLE_POINT_CLOUDS
                         generateStitchedPointClouds(true),
                         generateCurrentPointCloud(true),
+                        */
                         computeExtrinsicMarginals(false),
                         drawEstimateRobot(false),
                         useDeadBand(false),
@@ -246,8 +250,9 @@ namespace gtsam
             void UpdateLandmarkPos(size_t id, const gtsam::Point3& worldPoint);
 
             void CalculateCurrentErrors(std::vector<double>& errors);
-
+            /* DISABLE_POINT_CLOUDS
             void PublishLastPointCloud();
+            */
 
             inline dart::dynamics::SkeletonPtr GetSkeleton() { return skeleton; }
 
@@ -267,14 +272,18 @@ namespace gtsam
             void AddDriftFactor(size_t idx);
             void AddVelocityFactor(size_t idx);
             void AddObservationFactor(const gtsam::Point2& observation, size_t configIdx, size_t landmarkIdx);
+            /* DISABLE_POINT_CLOUDS
             void SaveStitchedPointClouds(const std::string& file);
+            */
             inline double GetTime(size_t iter) const { return times.at(iter); }
             gtsam::Vector GetPerlinNoise(const gtsam::Vector& pos, const double& freq, const double& mag);
             gtsam::Vector Diff(const gtsam::Vector& q1, const gtsam::Vector& q2);
             gtsam::Vector Wrap(const gtsam::Vector& q);
             bool IsContinuous(size_t jointIndex);
 
+            /* DISABLE_VIEWER
             inline const std::shared_ptr<aikido::rviz::InteractiveMarkerViewer>& GetViewer() { return viewer; }
+            */
 
             inline const Params& GetParams() const { return params; }
 
@@ -305,8 +314,10 @@ namespace gtsam
             std::shared_ptr<FrontEnd> frontEnd;
             std::shared_ptr<joint_state_recorder::JointStateRecorder> jointRecorder;
             std::shared_ptr<joint_state_recorder::JointStateRecorder> simJointRecorder;
+            /* DISABLE_POINT_CLOUDS
             std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr > pointClouds;
             pcl::PointCloud<pcl::PointXYZRGB>::Ptr lastPointCloud;
+            */
             dart::simulation::WorldPtr world;
             dart::dynamics::SkeletonPtr skeleton;
             dart::dynamics::SkeletonPtr estimateSkeleton;

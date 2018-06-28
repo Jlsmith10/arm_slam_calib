@@ -97,7 +97,9 @@ int main(int argc, char** argv)
     for(size_t i = 0; i < iters; i++)
     {
         calib.SimulationStep(i);
+        /* DISABLE_VIEWER
         calib.UpdateViewer();
+        */
         if (i > 1 && i % 2 == 0)
         {
             calib.OptimizeStep();

@@ -14,10 +14,12 @@
 #include <opengv/sac/Ransac.hpp>
 #include <gtsam/nonlinear/DoglegOptimizer.h>
 #include <opengv/triangulation/methods.hpp>
+/* DISABLE_POINT_CLOUDS
 #include <pcl/common/transforms.h>
 #include <pcl/ros/conversions.h>
 #include <pcl_ros/point_cloud.h>
 #include <pcl/io/pcd_io.h>
+*/
 #include <aikido/rviz/SkeletonMarker.hpp>
 #include <arm_slam_calib/Timer.h>
 
@@ -26,6 +28,7 @@ using namespace gtsam;
 using namespace timer;
 
 
+/* DISABLE_UNIT_TESTS
 void RansacUnitTest()
 {
     gtsam::Cal3_S2 cal(640, 480, 0, 640/2, 480/2);
@@ -123,6 +126,7 @@ void RansacUnitTest()
     }
     //exit(-1);
 }
+*/
 
 void TriangulateUnitTest()
 {
@@ -205,8 +209,10 @@ namespace gtsam
         newGraph = boost::make_shared<gtsam::NonlinearFactorGraph>();
         vizPublisher = nh.advertise<visualization_msgs::MarkerArray>("viz", 10);
         displayImgPublisher = nh.advertise<sensor_msgs::Image>("display", 10);
+        /* DISABLE_POINT_CLOUDS
         pointCloudPublisher = nh.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("pointclouds", 1);
         latestCloudPublisher = nh.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("latest_point_cloud", 1);
+        */
         numObservationsThisIter = 0;
         encoders = Eigen::aligned_vector<gtsam::Vector>();
         trajectory = Eigen::aligned_vector<gtsam::Vector>();
@@ -238,9 +244,12 @@ namespace gtsam
         skeleton = skel_;
         world = std::make_shared<dart::simulation::World>();
         world->addSkeleton(skeleton);
-        viewer = std::make_shared<aikido::rviz::InteractiveMarkerViewer>("dart_markers");
+        // TODO: chose random number for FrameId (0), but not sure what it does
+        /* DISABLE_VIEWER
+        viewer = std::make_shared<aikido::rviz::InteractiveMarkerViewer>("dart_markers", "0");
 
         viewer->addSkeleton(skeleton);
+        */
 
         std::vector<dart::dynamics::DegreeOfFreedom*> dofVec;
 
@@ -269,9 +278,10 @@ namespace gtsam
            }
 
            estimateArm = dart::dynamics::Group::create("estimateArm", dofVec2, false, true);
-
+           /* DISABLE_VIEWER
            aikido::rviz::SkeletonMarkerPtr marker = viewer->addSkeleton(estimateSkeleton);
            marker->SetColor(Eigen::Vector4d(0.5, 1.0, 0.5, 0.5));
+           */
         }
     }
 
@@ -280,12 +290,13 @@ namespace gtsam
         dofs = dofs_;
         dart::utils::DartLoader urdfLoader;
 
-        const std::shared_ptr<aikido::util::CatkinResourceRetriever> resourceRetriever = std::make_shared<aikido::util::CatkinResourceRetriever>();
+        const std::shared_ptr<aikido::io::CatkinResourceRetriever> resourceRetriever = std::make_shared<aikido::io::CatkinResourceRetriever>();
 
         dart::common::ResourcePtr resource = resourceRetriever->retrieve(urdf);
 
         if (!resource)
         {
+            std::cout<<"HEY";
             std::cerr << "Could not get resource\n";
         }
         else
@@ -296,7 +307,7 @@ namespace gtsam
             }
         }
 
-        skeleton= urdfLoader.parseSkeleton(urdf, resourceRetriever);
+        skeleton= urdfLoader.parseSkeletonString(urdf, "");
         InitRobot(skeleton, dofs_, cameraLink_);
     }
 
@@ -685,7 +696,7 @@ namespace gtsam
         trajectory = Eigen::aligned_vector<gtsam::Vector>(params.trajectorySize, gtsam::Vector::Zero(dofs.size()));
         encoders = Eigen::aligned_vector<gtsam::Vector>(params.trajectorySize, gtsam::Vector::Zero(dofs.size()));
 
-        calibrationPrior = noiseModel::Diagonal::Sigmas((Vector(6) << Vector3::Constant(params.extrinsicNoiseLevel), Vector3::Constant(params.extrinsicRotNoiseLevel)));
+        calibrationPrior = noiseModel::Diagonal::Sigmas((Vector(6) << Vector3::Constant(params.extrinsicNoiseLevel), Vector3::Constant(params.extrinsicRotNoiseLevel)).finished());
         AddFactor(boost::make_shared<PriorFactor<Pose3> >(ExtrinsicSymbol(), params.extrinsicInitialGuess, calibrationPrior));
 
         std::cout << "Initial pose: " << params.extrinsicInitialGuess << std::endl;
@@ -1054,6 +1065,7 @@ namespace gtsam
 
         vizPublisher.publish(array);
 
+        /* DISABLE_POINT_CLOUDS
         if (drawPointCloud)
         {
             pcl::PointCloud<pcl::PointXYZRGB>::Ptr compositeCloud = boost::make_shared<pcl::PointCloud<pcl::PointXYZRGB> >();
@@ -1077,10 +1089,12 @@ namespace gtsam
 
             pointCloudPublisher.publish(compositeCloud);
         }
+        */
         arm->setPositions(armConfig);
         Timer::Tock("Display");
     }
 
+    /* DISABLE_POINT_CLOUDS
     void ArmSlamCalib::PublishLastPointCloud()
     {
         if (encoders.size() == 0) return;
@@ -1098,6 +1112,7 @@ namespace gtsam
         transformed.is_dense = false;
         latestCloudPublisher.publish(transformed);
     }
+    */
 
     void ArmSlamCalib::InitializeUnsynchronizedDepth(const std::string& depthTopic)
     {
@@ -1141,7 +1156,7 @@ namespace gtsam
             ROS_ERROR("Unable to get camera calibration!");
         }
 
-        calibrationPrior = noiseModel::Diagonal::Sigmas((Vector(6) << Vector3::Constant(params.extrinsicNoiseLevel), Vector3::Constant(params.extrinsicRotNoiseLevel)));
+        calibrationPrior = noiseModel::Diagonal::Sigmas((Vector(6) << Vector3::Constant(params.extrinsicNoiseLevel), Vector3::Constant(params.extrinsicRotNoiseLevel)).finished());
         AddFactor(boost::make_shared<PriorFactor<Pose3> >(ExtrinsicSymbol(), params.extrinsicInitialGuess, calibrationPrior));
         AddValue(ExtrinsicSymbol(), params.extrinsicInitialGuess);
         measurementNoise = noiseModel::Robust::Create(cauchyEstimator, noiseModel::Diagonal::Sigmas(Vector2::Constant(params.projectionNoiseLevel)));
@@ -1176,6 +1191,7 @@ namespace gtsam
              exit(-1);
          }
          ROS_INFO("%f %f %f %f\n", calib->fx(), calib->fy(), calib->px(), calib->py());
+
          calibrationPrior = noiseModel::Diagonal::Sigmas((Vector(6) << Vector3::Constant(params.extrinsicNoiseLevel), Vector3::Constant(params.extrinsicRotNoiseLevel)));
          AddFactor(boost::make_shared<PriorFactor<Pose3> >(ExtrinsicSymbol(), params.extrinsicInitialGuess, calibrationPrior));
          AddValue(ExtrinsicSymbol(), params.extrinsicInitialGuess);
@@ -1209,7 +1225,7 @@ namespace gtsam
         {
             ROS_ERROR("Unable to get camera calibration!");
         }
-        calibrationPrior = noiseModel::Diagonal::Sigmas((Vector(6) << Vector3::Constant(params.extrinsicNoiseLevel), Vector3::Constant(params.extrinsicRotNoiseLevel)));
+        calibrationPrior = noiseModel::Diagonal::Sigmas((Vector(6) << Vector3::Constant(params.extrinsicNoiseLevel), Vector3::Constant(params.extrinsicRotNoiseLevel)).finished());
         AddFactor(boost::make_shared<PriorFactor<Pose3> >(ExtrinsicSymbol(), params.extrinsicInitialGuess, calibrationPrior));
         AddValue(ExtrinsicSymbol(), params.extrinsicInitialGuess);
         measurementNoise = noiseModel::Robust::Create(cauchyEstimator, noiseModel::Diagonal::Sigmas(Vector2::Constant(params.projectionNoiseLevel)));
@@ -1491,6 +1507,7 @@ namespace gtsam
                 displayImgPublisher.publish(frontEnd->GetLandmarkDisplay()->toImageMsg());
             }
 
+            /* DISABLE_POINT_CLOUDS
             if (params.generateStitchedPointClouds || params.generateCurrentPointCloud)
             {
                 if (params.generateStitchedPointClouds)
@@ -1509,6 +1526,7 @@ namespace gtsam
                     frontEnd->GeneratePointCloud(lastPointCloud);
                 }
             }
+            */
 
             if (!frontEnd->GetNewLandmarks(cameraPose, stamp, visibleLandmarks, newLandmarks))
                 return false;
@@ -2003,7 +2021,7 @@ namespace gtsam
             opengv::relative_pose::RelativePoseAdapter adapter(poseA, poseB, *calib, landmarks, obsA, obsB);
             typedef opengv::sac_problems::relative_pose::CentralRelativePoseSacProblem CentralRelativePoseSacProblem;
             opengv::sac::Ransac<CentralRelativePoseSacProblem> ransac;
-            boost::shared_ptr<CentralRelativePoseSacProblem> problem(new CentralRelativePoseSacProblem(adapter, CentralRelativePoseSacProblem::STEWENIUS));
+            std::shared_ptr<CentralRelativePoseSacProblem> problem(new CentralRelativePoseSacProblem(adapter, CentralRelativePoseSacProblem::STEWENIUS));
             ransac.sac_model_ = problem;
             ransac.threshold_ = 9;     //(1.0 - cos(0.5/600));
             ransac.max_iterations_ = 50;
@@ -2079,7 +2097,7 @@ namespace gtsam
         }
     }
 
-
+    /* DISABLE_VIEWER
     void ArmSlamCalib::UpdateViewer()
     {
         if (params.drawEstimateRobot && encoders.size() > 0)
@@ -2091,6 +2109,7 @@ namespace gtsam
 
         viewer->update();
     }
+    */
 
     // Space seperated matrix of joint angle values.
     void ArmSlamCalib::LoadSimTrajectory(const std::string& fileName)
@@ -2308,7 +2327,7 @@ namespace gtsam
         }
         return toReturn;
     }
-
+    /* DISABLE_POINT_CLOUDS
     void ArmSlamCalib::SaveStitchedPointClouds(const std::string& file)
     {
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr compositeCloud = boost::make_shared<pcl::PointCloud<pcl::PointXYZRGB> >();
@@ -2332,6 +2351,7 @@ namespace gtsam
         compositeCloud->height = compositeCloud->points.size();
         pcl::io::savePCDFileASCII(file.c_str(), *compositeCloud);
     }
+    */
 
     void ArmSlamCalib::PrintLandmarkStats(std::ofstream& stream)
     {
