@@ -55,22 +55,35 @@ int main(int argc, char** argv)
     gtsam::ArmSlamCalib calib(nh, std::make_shared<std::mutex>(), params);
 
     std::vector<std::string> joints;
+    /*
     joints.push_back("mico_joint_1");
     joints.push_back("mico_joint_2");
     joints.push_back("mico_joint_3");
     joints.push_back("mico_joint_4");
     joints.push_back("mico_joint_5");
     joints.push_back("mico_joint_6");
+    */
+    /* BAXTER Joints */
+    //joints.push_back("left_arm_mount");
+    joints.push_back("left_s0");
+    joints.push_back("left_s1");
+    joints.push_back("left_e0");
+    joints.push_back("left_e1");
+    joints.push_back("left_w0");
+    joints.push_back("left_w1");
+    joints.push_back("left_w2");
     nh.param("free_joints", joints, joints);
 
-    std::string cameraName = "mico_end_effector";
+    //std::string cameraName = "mico_end_effector";
+    std::string cameraName = "left_hand_camera";
     nh.param("camera_mount_link", cameraName, cameraName);
 
     //std::string urdf = "package://ada_description/robots/fetch.urdf";
-    std::string urdf = "/home/james/catkin_ws/src/semi_farm_slam/robots/fetch.urdf";
+    std::string urdf = "/home/james/newest_ws/src/baxter_common/baxter_description/urdf/baxter.urdf";
     nh.param("urdf", urdf, urdf);
     ROS_INFO("Loading urdf...");
     calib.InitRobot(urdf, joints, cameraName);
+    
     ROS_INFO("Completed loading urdf...");
 
     std::string rgbTopic = "/camera/rgb/image_rect_color";
@@ -83,11 +96,12 @@ int main(int argc, char** argv)
     nh.param("depth_info", depthInfo, depthInfo);
     // TODO!!
     //calib.InitializeFiducial("/camera/rgb/image_rect_color", 0.025, 7, 9);
-    //calib.InitializeFiducial("/camera/rgb/image_rect_color", 0.115, 7, 5);
-    //calib.InitializeAprilTags("/camera/rgb/image_raw", "/apriltags/detections");
-    calib.InitializeFeatures(rgbTopic, rgbInfo, depthtopic, depthInfo);
+    //calib.InitializeFiducial("/camera/rgb/image_rect_color", 0.115, 7, 5); // For using Fiducials
+    calib.InitializeAprilTags("/camera/rgb/image_raw", "/apriltags2_ros/detections"); // For using AprilTags
+    //calib.InitializeFeatures(rgbTopic, rgbInfo, depthtopic, depthInfo); // For using BRISK features
     //calib.InitializeUnsynchronizedDepth("/camera/depth/image_rect_raw");
-    std::string jointStateTopic = "/mico_arm_driver/out/joint_state";
+    //std::string jointStateTopic = "/mico_arm_driver/out/joint_state";
+    std::string jointStateTopic = "/robot/joint_states";
     nh.param("joint_state_topic", jointStateTopic, jointStateTopic);
     // TODO!!;
     calib.InitializeJointRecorder(jointStateTopic);

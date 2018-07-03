@@ -170,9 +170,9 @@ namespace gtsam
                 }
                 catch(CheiralityException& e)
                 {
-                    if (J1) *J1 = zeros(2, robot->getNumDofs());
-                    if (J2) *J2 = zeros(2, 3);
-                    if (J3) *J3 = zeros(2, 6);
+                    if (J1) *J1 = zeros(2, robot->getNumDofs()); // partial with respect to landmarks (l_i)
+                    if (J2) *J2 = zeros(2, 3); // Partial with respect to current configuration (q_t)
+                    if (J3) *J3 = zeros(2, 6); // partial of factor w.r.t. Camera Entrinsics (T_cam)
 
                     if (verboseCheirality)
                     {

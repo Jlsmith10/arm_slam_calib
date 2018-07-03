@@ -65,12 +65,19 @@ without the use of fiducials. Modify it to suit your needs.
      <param name="draw_grid"                      value="true"/>
      <!-- These joints in the URDF will be optimized. All other joints will be 
           considered to have no uncertainty -->
+     
+     <!--
      <param name="free_joints"                    value="[mico_joint_1, mico_joint_2, mico_joint_3, mico_joint_4, mico_joint_5, mico_joint_6]"/>
+     -->
+     <param name="free_joints"                    value="[left_s0, left_s1, left_e0, left_e1, left_w0, left_w1, left_w2]"/>
      <!-- Link in the URDF that the camera is mounted to. Extrinsic will be reported
           relative to this link -->
-     <param name="camera_mount_link"              value="mico_end_effector"/>
+     <param name="camera_mount_link"              value="left_hand_camera"/>
      <!-- Location of the robot's URDF. package://, file:// or http:// can be used. -->
+     <!--
      <param name="urdf"                           value="package://ada_description/robots/mico.urdf"/>
+     -->
+     <param name="urdf"                           value="file://home/james/newest_ws/src/baxter_common/baxter_description/urdf/baxter.urdf"/>
      <!-- Topic that the camera is publishing color images to (mono also works)-->
      <param name="rgb_topic"                      value="/camera/rgb/image_rect_color"/>
      <!-- Topic containing the camera intrinsics (must be pre-calibrated) -->

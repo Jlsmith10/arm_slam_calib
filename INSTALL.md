@@ -9,6 +9,7 @@
 * image_transport
 * visualization_msgs
 * pcl_ros
+* joint_state_recorder
 ### Install pcl_ros v.1.8
 ```
 
@@ -34,25 +35,29 @@ catkin_make
 ## Non-ROS Dependencies
 * [AIKIDO](https://github.com/personalrobotics/aikido)
 ```
-sudo add-apt-repository ppa:libccd-debs/ppa
-sudo add-apt-repository ppa:fcl-debs/ppa
-sudo add-apt-repository ppa:dartsim/ppa
-sudo add-apt-repository ppa:personalrobotics/ppa
-sudo apt-get update
-
-sudo apt-get install libaikido-all-dev
+git clone https://github.com/personalrobotics/aikido
+git checkout tags/v0.2.0
+mkdir build && cd build
+cmake ..
+make 
+sudo make install
 ```
 
 * [DART](https://github.com/dartsim/dart)
 DART (Dynamic Animation and Robotics Toolkit) is an open source C++ library used for kinematic and dynamic applications.
-### Install DART 5.1 (6 might work but haven't tested it out)
+### Install DART 6
 ```
 sudo apt-add-repository ppa:libccd-debs
 sudo apt-add-repository ppa:fcl-debs
 sudo apt-add-repository ppa:dartsim
 sudo apt-get update
 
-sudo apt-get install libdart5-dev
+sudo apt-get install libdart6-all-dev
+```
+OR install from source using the second part of these instructions (Install DART from source)
+```
+http://dartsim.github.io/install_dart_on_ubuntu.html#install-required-dependencies
+TODO: add this to Dockerfile...
 ```
 * [BRISK](https://github.com/clemenscorny/brisk)
 ```
@@ -72,7 +77,7 @@ export BRISK_INCLUDE_DIRS=/home/james/brisk/include
 
 
 * [OpenCV](https://github.com/opencv/opencv)
-### Use the OpenCV built-in to ROS Indigo, no need to install
+### Use the OpenCV built-in to ROS Indigo, no need to install a separate one
 
 * [OpenGV](https://github.com/laurentkneip/opengv)
 #### NOTE: Not in catkin workspace, this is a generic CMake package.
@@ -85,7 +90,8 @@ git clone https://github.com/laurentkneip/opengv
 ```
 git clone https://bitbucket.org/gtborg/gtsam
 
-git checkout origin release/3.2.1
+git checkout origin release/3.2.1 # TODO: Double check!
+
 cd gtsam
 mkdir build && cd build
 cmake ..
@@ -118,6 +124,11 @@ export PCL_DIR=/home/james/pcl/build/  // <-- insert the directory that you inst
 * [Assimp](https://github.com/assimp/assimp)
 
 * [TBB](https://github.com/wjakob/tbb)
+
+* [MicroHTTPd] 
+`
+sudo apt-get install libmicrohttpd-dev
+`
 
 
 

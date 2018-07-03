@@ -255,8 +255,11 @@ namespace gtsam
 
         for (size_t i = 0; i < dofs.size(); i++)
         {
-           dofVec.push_back(skeleton->getDof(dofs.at(i)));
+            std::cout<<"Adding joint "<<dofs.at(i)<<std::endl; 
+            dofVec.push_back(skeleton->getDof(dofs.at(i)));
         }
+
+        
 
         cameraBody = skeleton->getBodyNode(cameraLink_);
 
@@ -287,16 +290,22 @@ namespace gtsam
 
     void ArmSlamCalib::InitRobot(const std::string& urdf, const std::vector<std::string>& dofs_, const std::string& cameraLink_)
     {
+        std::cerr<<"Initializing robot...";
         dofs = dofs_;
         dart::utils::DartLoader urdfLoader;
+        //std::cerr<<"Constructing CatkinResourceRetriever";
+        // Add package directory
+        urdfLoader.addPackageDirectory("baxter_description", "/home/james/newest_ws/src/baxter_common/baxter_description");
 
-        const std::shared_ptr<aikido::io::CatkinResourceRetriever> resourceRetriever = std::make_shared<aikido::io::CatkinResourceRetriever>();
+        /*
+        const auto resourceRetriever = std::make_shared<aikido::io::CatkinResourceRetriever>();
 
+        std::cerr<<"Retrieving URDF...";
         dart::common::ResourcePtr resource = resourceRetriever->retrieve(urdf);
+        std::cerr<<"URDF Retrieved.";
 
         if (!resource)
         {
-            std::cout<<"HEY";
             std::cerr << "Could not get resource\n";
         }
         else
@@ -306,8 +315,10 @@ namespace gtsam
                 std::cout << "URI exists\n";
             }
         }
+        */
 
-        skeleton= urdfLoader.parseSkeletonString(urdf, "");
+        //skeleton = urdfLoader.parseSkeletonString(urdf, "");
+        skeleton = urdfLoader.parseSkeleton("/home/james/newest_ws/src/baxter_common/baxter_description/urdf/baxter.urdf");
         InitRobot(skeleton, dofs_, cameraLink_);
     }
 
@@ -1138,7 +1149,7 @@ namespace gtsam
         ros::Rate sleepRate(30);
 
 
-        ROS_INFO("Waiting for new data...");
+        ROS_INFO("Waiting for new feature data...");
         while(!frontEnd->HasNewData() && ros::ok())
         {
             if (params.simulated)
@@ -1175,7 +1186,7 @@ namespace gtsam
 
          ros::Rate sleepRate(30);
 
-         ROS_INFO("Waiting for new data...");
+         ROS_INFO("Waiting for new april tag data...");
          while(!frontEnd->HasNewData() && ros::ok())
          {
              sleepRate.sleep();
@@ -1211,7 +1222,7 @@ namespace gtsam
 
         ros::Rate sleepRate(30);
 
-        ROS_INFO("Waiting for new data...");
+        ROS_INFO("Waiting for new fiducial data...");
         while(!frontEnd->HasNewData() && ros::ok())
         {
             sleepRate.sleep();

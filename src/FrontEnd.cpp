@@ -265,6 +265,7 @@ namespace gtsam
 
     void FrontEnd::OnCamera(const sensor_msgs::ImageConstPtr& image, const sensor_msgs::CameraInfoConstPtr& info)
     {
+        ROS_INFO("New camera data has arrived!");
         lastImage = image;
         lastCameraInfo = info;
         hasNewData = true;
